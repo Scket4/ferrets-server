@@ -1,25 +1,23 @@
-import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
+import { User } from 'src/user/interfaces/user.interface';
 import { AuthService } from './auth.service';
 import { CreateUserDTO } from './dto/create-user.dto';
+import { LocalAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService)  {}
+  constructor(private authService: AuthService) {}
 
   @Post('/signUp')
-  async signUp(@Res() res, @Body() authData: CreateUserDTO): Promise<HttpStatus> {
-    const newUser = await this.authService.signUp(authData);
-
-    if (newUser) {
-      return res.status(HttpStatus.OK).json(newUser);
-    } else {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async signUp(@Body() user: CreateUserDTO) {
+    return this.authService.register(user);
   }
 
   @Post('/signIn')
-  async signIn(@Res() res, @Body() authData: CreateUserDTO): Promise<HttpStatus> {
-    const newUser = await this.authService.signIn(authData);
-    return res.status(HttpStatus.OK).json(newUser);
+  @UseGuards(LocalAuthGuard)
+  async signIn(
+    @Body() authData: User,
+  ): Promise<any> {
+    return this.authService.login(authData);
   }
 }
