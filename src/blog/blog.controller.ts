@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, HttpStatus, NotFoundException, Param, Post, Put, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreatePostDTO } from './dto/create-post.dto';
 
@@ -20,35 +32,35 @@ export class BlogController {
   }
 
   @Post('/post')
-    async addPost(@Res() res, @Body() createPostDTO: CreatePostDTO) {
-        const newPost = await this.blogService.addPost(createPostDTO);
-        return res.status(HttpStatus.OK).json({
-            message: "Пост был добавлен",
-            post: newPost
-        })
-    }
+  async addPost(@Res() res, @Body() createPostDTO: CreatePostDTO) {
+    const newPost = await this.blogService.addPost(createPostDTO);
+    return res.status(HttpStatus.OK).json({
+      message: 'Пост был добавлен',
+      post: newPost,
+    });
+  }
 
   @Put('/edit')
   async editPost(
     @Res() res,
     @Query('postID') postID,
-    @Body() createPostDTO: CreatePostDTO
+    @Body() createPostDTO: CreatePostDTO,
   ) {
     const editedPost = await this.blogService.editPost(postID, createPostDTO);
     if (!editedPost) throw new NotFoundException('Пост не найден!');
     return res.status(HttpStatus.OK).json({
       message: 'Пост был обновлен',
-      post: editedPost
-    }) 
+      post: editedPost,
+    });
   }
 
   @Delete('/delete')
-    async deletePost(@Res() res, @Query('postID') postID) {
-        const deletedPost = await this.blogService.deletePost(postID);
-        if (!deletedPost) throw new NotFoundException('Пост не найден!');
-        return res.status(HttpStatus.OK).json({
-            message: 'Пост был удален!',
-            post: deletedPost
-        })
-    }
+  async deletePost(@Res() res, @Query('postID') postID) {
+    const deletedPost = await this.blogService.deletePost(postID);
+    if (!deletedPost) throw new NotFoundException('Пост не найден!');
+    return res.status(HttpStatus.OK).json({
+      message: 'Пост был удален!',
+      post: deletedPost,
+    });
+  }
 }

@@ -9,10 +9,11 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { UserModule } from 'src/user/user.module';
 import { ValidateService } from 'src/common/services/validate.service';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, ValidateService],
+  providers: [AuthService, LocalStrategy, ValidateService, JwtStrategy],
   imports: [
     UserModule,
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
@@ -20,7 +21,7 @@ import { ValidateService } from 'src/common/services/validate.service';
     ValidateService,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' }
+      signOptions: { expiresIn: '30d' }
     })
   ],
 })
