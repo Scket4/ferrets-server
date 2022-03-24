@@ -27,9 +27,9 @@ import { appConfig, databaseConfig } from './config';
       isGlobal: true,
       load: [appConfig, databaseConfig]
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'client'),
+    // }),
   ],
   controllers: [AppController],
   providers: [AppService],
