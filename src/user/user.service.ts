@@ -36,7 +36,18 @@ export class UserService {
     return bcrypt.hash(password, 10);
   }
 
-  async getUserData(user: User) {
+  // пароль убрать
+  async getUserData(username: string) {
+    const searchUser = await this.findUser(username);
+
+    if (!searchUser)
+      throw new InternalServerErrorException('Ошибка, данные не найдены');
+
+    return searchUser;
+  }
+
+  // пароль
+  async getMyUserData(user: User) {
     const searchUser = await this.findUser(user.username);
 
     if (!searchUser)
@@ -45,19 +56,68 @@ export class UserService {
     return searchUser;
   }
 
-  async updateData(user: User, newData: User) {
+  // убрать пароль
+  async updateData(user: User, newData: User, filePath: string = null) {
+    let updatedData = { ...newData };
+
+    if (filePath) {
+      updatedData = {
+        ...updatedData,
+        profile_photo: filePath,
+      };
+    }
+
     // Надо сделать поиск по id
     return await this.userModel.updateOne(
       { username: user.username },
       {
         $set: {
-          ...newData,
+          ...updatedData,
         },
       },
       {
         strict: false,
       },
     );
+  }
+
+  // убрать пароль
+  async toggleLike(myUsername: User, likedUser: string) {
+    
+    const targetUser = await this.userModel.findOne({
+      username: likedUser,
+    });
+    
+    const targetUserLikes = await targetUser.get('profile_likes');
+    const isLiked = await targetUserLikes.includes(myUsername);
+
+    if (isLiked) {
+      
+      return await this.userModel.findOneAndUpdate(
+        { username: likedUser },
+        { $pull: { profile_likes: myUsername } },
+        { new: true },
+      );
+    }
+
+    return await this.userModel.findOneAndUpdate(
+      {
+        username: likedUser,
+      },
+      {
+        $push: {
+          profile_likes: myUsername,
+        },
+      },
+      { new: true },
+    );
+  }
+
+  // тут убрать пароли и все остальное, оставить username
+  async searchUsers(searchQuery: string) {
+    return await this.userModel.find({
+      username: { $regex: new RegExp('^' + searchQuery) },
+    });
   }
 
   public static async comparePassword(

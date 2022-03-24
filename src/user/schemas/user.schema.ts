@@ -7,4 +7,6 @@ export const UserSchema = new mongoose.Schema({
     surname: String,
     about: String,
     password: String,
+    profile_photo: String,
+    profile_likes: Array,
 })

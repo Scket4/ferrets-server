@@ -5,6 +5,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BlogModule } from './blog/blog.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { ConfigModule } from '@nestjs/config';
+import { appConfig, databaseConfig } from './config';
 
 @Module({
   imports: [
@@ -12,6 +16,13 @@ import { AuthModule } from './auth/auth.module';
     BlogModule,
     UserModule,
     AuthModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [appConfig, databaseConfig]
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
