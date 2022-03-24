@@ -109,6 +109,40 @@ export class UserService {
     );
   }
 
+  async setStatusOnline(userData: any) {
+    await this.userModel.updateOne(
+      { username: userData.username },
+      {
+        $set: {
+          status: {
+            isOnline: true,
+            socketId: userData.socketId,
+          },
+        },
+      },
+    );
+  }
+
+  async setStatusOffline(userData: any) {    
+    const user = await this.userModel.findOneAndUpdate(
+      { "status.socketId": userData.socketId },
+      {
+        $set: {
+          status: {
+            isOnline: false,
+            socketId: null,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    return {
+      username: user.username,
+      status: false,
+    }
+  }
+
   // тут убрать пароли и все остальное, оставить username
   async searchUsers(searchQuery: string) {
     return await this.userModel.find({

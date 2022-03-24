@@ -14,10 +14,7 @@ import { UserService } from './user.service';
 export class UserGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-
-  constructor(
-    private userService: UserService,
-  ) {}
+  constructor(private userService: UserService) {}
 
   @WebSocketServer()
   server: Server;
@@ -26,18 +23,35 @@ export class UserGateway
 
   @SubscribeMessage('setLike')
   async handleMessage(client: Socket, payload) {
-    const user = await this.userService.toggleLike(payload.myUsername, payload.targetUsername);
-    this.server.emit('setLikeNotification', { targetUser: user, whoSetLike: payload.myUsername });
+    const user = await this.userService.toggleLike(
+      payload.myUsername,
+      payload.targetUsername,
+    );
+    this.server.emit('setLikeNotification', {
+      targetUser: user,
+      whoSetLike: payload.myUsername,
+    });
+  }
+
+  @SubscribeMessage('setStatusOnline')
+  async setStatusOnline(client: Socket, payload) {    
+    await this.userService.setStatusOnline({ ...payload, socketId: client.id});
+    this.server.emit('userStatus', {
+      username: payload.username,
+      status: true,
+    });
+  }
+
+  async handleDisconnect(client: Socket) {
+    const newUserStatus = await this.userService.setStatusOffline({ socketId: client.id});
+    this.server.emit('userStatus', newUserStatus)
+    this.logger.log(`Client disconnected: ${client.id}, ${newUserStatus.username}`);
   }
 
   afterInit(server: Server) {
     this.logger.log('Init');
   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
-  }
-  
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected: ${client.id}`);
   }

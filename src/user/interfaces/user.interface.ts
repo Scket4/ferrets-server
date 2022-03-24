@@ -7,5 +7,6 @@ export interface User extends Document {
     surname?: string,
     profile_photo?: string,
     profile_likes?: string[],
+    status: {},
     readonly password: string;
 }
