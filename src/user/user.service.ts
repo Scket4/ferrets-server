@@ -138,7 +138,7 @@ export class UserService {
     );
 
     return {
-      username: user.username,
+      username: user?.username,
       status: false,
     }
   }
