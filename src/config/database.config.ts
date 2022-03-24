@@ -5,4 +5,5 @@ export default registerAs('database', () => ({
   name: process.env.DATABASE_NAME || 'mongo',
   user: process.env.DATABASE_USER || 'root',
   password: process.env.DATABASE_PASSWORD || 'root',
+  uri: process.env.MONGODB_URI
 }));

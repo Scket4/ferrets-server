@@ -7,12 +7,19 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { appConfig, databaseConfig } from './config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/nest'),
+    MongooseModule.forRootAsync({
+      useFactory: (config: ConfigService) => {
+        return {
+          uri: config.get<string>('database.uri')
+        };
+      },
+      inject: [ConfigService],
+    }),
     BlogModule,
     UserModule,
     AuthModule,
