@@ -12,6 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { CreateUserDTO } from 'src/auth/dto/create-user.dto';
@@ -23,6 +24,7 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(
     private userService: UserService,
+    private config: ConfigService
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -51,8 +53,8 @@ export class UserController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     let filePath: string;
-    const SERVER_URL = 'http://localhost:4000/';
-
+    const SERVER_URL = this.config.get<string>('base_url');
+    
     if (file?.path) {
       filePath = `${SERVER_URL}${file.path}`;
     }

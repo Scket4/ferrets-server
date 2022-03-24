@@ -68,31 +68,27 @@ export class UserService {
     }
 
     // Надо сделать поиск по id
-    return await this.userModel.updateOne(
+    return await this.userModel.findOneAndUpdate(
       { username: user.username },
       {
         $set: {
           ...updatedData,
         },
       },
-      {
-        strict: false,
-      },
+      { new: true },
     );
   }
 
   // убрать пароль
   async toggleLike(myUsername: User, likedUser: string) {
-    
     const targetUser = await this.userModel.findOne({
       username: likedUser,
     });
-    
+
     const targetUserLikes = await targetUser.get('profile_likes');
     const isLiked = await targetUserLikes.includes(myUsername);
 
     if (isLiked) {
-      
       return await this.userModel.findOneAndUpdate(
         { username: likedUser },
         { $pull: { profile_likes: myUsername } },
