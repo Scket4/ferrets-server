@@ -22,7 +22,7 @@ export class AuthService {
     const user = await this.userService.findUser(username);
 
     if (!user) {
-       throw new UnauthorizedException('Такого пользователя не существует');
+      throw new UnauthorizedException('Такого пользователя не существует');
     }
 
     const comparePassword = await UserService.comparePassword(
@@ -42,22 +42,28 @@ export class AuthService {
 
     await this.validate.validateUsername(user.username);
 
-    await this.userService.createUser({
+    const newUser = await this.userService.createUser({
       ...user,
       username: user.username.toLowerCase().trim(),
     });
 
     return {
       access_token: this.jwtService.sign(payload),
+      user: newUser,
     };
   }
 
   async login(user: User) {
-    const payload = { username: user.username, sub: user.id }; 
+    const payload = { username: user.username, sub: user.id };
+    const access_token = this.jwtService.sign(payload);
+
+    if (!access_token) return;
+
+    const signedUser = await this.userService.findUser(user.username);
 
     return {
-      access_token: this.jwtService.sign(payload),
-      username: user.username,
+      user: signedUser,
+      access_token,
     };
   }
 }
